@@ -1,7 +1,8 @@
 from django.urls import path
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
-    TokenRefreshView, TokenVerifyView
+    TokenRefreshView,
+    TokenVerifyView
 )
 
 from user.views import CreateUserView, ManageUserView
@@ -22,7 +23,7 @@ urlpatterns = [
         name="token_refresh"
     ),
     path(
-        "api/token/verify/",
+        "token/verify/",
         TokenVerifyView.as_view(),
         name="token_verify"),
 ]

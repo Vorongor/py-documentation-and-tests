@@ -3,7 +3,6 @@ import os
 
 from PIL import Image
 from django.contrib.auth import get_user_model
-from django.template.defaultfilters import title
 from django.test import TestCase
 from django.urls import reverse
 
@@ -11,8 +10,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from cinema.models import Movie, MovieSession, CinemaHall, Genre, Actor
-from cinema.serializers import MovieSerializer, MovieListSerializer, \
-    MovieDetailSerializer
+from cinema.serializers import MovieListSerializer, MovieDetailSerializer
 
 MOVIE_URL = reverse("cinema:movie-list")
 MOVIE_SESSION_URL = reverse("cinema:moviesession-list")
@@ -166,9 +164,27 @@ class UnauthenticatedUserTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    def test_unauthenticated_get(self):
+    def test_unauthenticated_get_list(self):
         response = self.client.get(MOVIE_URL)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_unauthenticated_get_movie(self):
+        movie = sample_movie()
+        url = detail_url(movie.id)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_unauthenticated_load_movie_image(self):
+        movie = sample_movie()
+        url = image_upload_url(movie.id)
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as ntf:
+            img = Image.new("RGB", (10, 10))
+            img.save(ntf, format="JPEG")
+            ntf.seek(0)
+            res = self.client.post(url, {"image": ntf}, format="multipart")
+        movie.refresh_from_db()
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class AuthenticatedUserTests(TestCase):
