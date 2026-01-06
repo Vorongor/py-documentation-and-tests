@@ -186,6 +186,16 @@ class UnauthenticatedUserTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_unauthenticated_post_movie(self):
+        payload = {
+            "title": "title",
+            "description": "description",
+            "duration": 90,
+        }
+        response = self.client.post(MOVIE_URL, payload)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class AuthenticatedUserTests(TestCase):
     def setUp(self):
